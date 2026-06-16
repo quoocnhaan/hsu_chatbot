@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSU Chatbot - Student Assistant</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    
+    <!-- Background Decorative Gradients -->
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+
+    <div id="app-container">
+        
+        <!-- ================= AUTH VIEW ================= -->
+        <div id="auth-view" class="view-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="hsu-logo">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h1>HSU Chatbot</h1>
+                    <p class="subtitle">Hoa Sen University Student Assistant</p>
+                </div>
+                
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form">
+                    <h2>Welcome Back</h2>
+                    <p class="form-desc">Log in to retrieve your personalized academic assistant and chat history.</p>
+                    
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="login-username" placeholder="Username or Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="Password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Login</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    
+                    <p class="toggle-text">Don't have an account? <a href="#" id="to-register">Register here</a></p>
+                </form>
+
+                <!-- Register Form (Hidden by default) -->
+                <form id="register-form" class="auth-form hidden">
+                    <h2>Create Account</h2>
+                    <p class="form-desc">Join Hoa Sen University's smart assistant platform.</p>
+                    
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="reg-username" placeholder="Username" required minlength="3">
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="reg-email" placeholder="Email Address" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="reg-password" placeholder="Password (min 6 characters)" required minlength="6">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Register</span> <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                    
+                    <p class="toggle-text">Already have an account? <a href="#" id="to-login">Login here</a></p>
+                </form>
+                
+                <div id="auth-alert" class="alert hidden"></div>
+            </div>
+        </div>
+
+        <!-- ================= CHAT DASHBOARD VIEW ================= -->
+        <div id="dashboard-view" class="view-container hidden">
+            <div class="dashboard-layout">
+                
+                <!-- Left Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="sidebar-logo">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span>HSU Bot</span>
+                        </div>
+                        <button class="mobile-close-btn" id="mobile-sidebar-close">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-new-chat" id="btn-new-chat">
+                        <i class="fa-solid fa-plus"></i> <span>New Chat</span>
+                    </button>
+
+                    <!-- Chat Sessions List Container -->
+                    <div class="sessions-container">
+                        <h3>Conversations</h3>
+                        <ul id="sessions-list" class="sessions-list">
+                            <!-- Sessions will be loaded here dynamically -->
+                        </ul>
+                    </div>
+
+                    <!-- Sidebar Footer (User Account & Logout) -->
+                    <div class="sidebar-footer">
+                        <div class="user-profile">
+                            <div class="avatar">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div class="user-info">
+                                <span class="username" id="display-username">Student</span>
+                                <span class="role">HSU Student</span>
+                            </div>
+                        </div>
+                        <button id="btn-logout" class="btn-logout" title="Log Out">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </aside>
+                
+                <!-- Main Chat Pane -->
+                <main class="chat-pane">
+                    
+                    <!-- Top Chat Header -->
+                    <header class="chat-header">
+                        <div class="header-left">
+                            <button class="mobile-menu-btn" id="mobile-sidebar-open">
+                                <i class="fa-solid fa-bars"></i>
+                            </button>
+                            <div class="active-session-title">
+                                <i class="fa-solid fa-message"></i>
+                                <span id="chat-title-text">Select or start a conversation</span>
+                            </div>
+                        </div>
+                        <div class="header-actions hidden" id="chat-header-actions">
+                            <button id="btn-rename-session" title="Rename Conversation"><i class="fa-solid fa-pen"></i></button>
+                            <button id="btn-delete-session" class="delete-action" title="Delete Conversation"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </header>
+
+                    <!-- Conversation Message Stream -->
+                    <div class="messages-container" id="messages-container">
+                        
+                        <!-- Welcome / Onboarding State -->
+                        <div id="welcome-state" class="welcome-state">
+                            <div class="welcome-hero">
+                                <div class="welcome-icon">
+                                    <i class="fa-solid fa-lotus"></i>
+                                </div>
+                                <h2>Sen-Bot at HSU</h2>
+                                <p>Welcome to Hoa Sen University's AI Student Assistant. Ask me anything about HSU curriculum, student activities, registration guides, or standard campus operations!</p>
+                            </div>
+                            
+                            <div class="suggestions-grid">
+                                <div class="suggestion-card" data-prompt="How can I register for classes?">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                    <span>How can I register for classes?</span>
+                                </div>
+                                <div class="suggestion-card" data-prompt="What is the academic calendar of HSU?">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <span>HSU academic calendar</span>
+                                </div>
+                                <div class="suggestion-card" data-prompt="Where is the main campus located?">
+                                    <i class="fa-solid fa-map-location-dot"></i>
+                                    <span>Main campus location</span>
+                                </div>
+                                <div class="suggestion-card" data-prompt="How do I get a student card?">
+                                    <i class="fa-solid fa-id-card"></i>
+                                    <span>How to get a student card</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages will load here dynamically -->
+                        <div id="chat-messages-wrapper"></div>
+                        
+                        <!-- Typing Indicator -->
+                        <div id="typing-indicator" class="message bot hidden">
+                            <div class="message-avatar">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div class="message-content typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Input Area -->
+                    <footer class="chat-footer">
+                        <form id="chat-input-form" class="chat-input-wrapper">
+                            <textarea id="chat-input" placeholder="Type a message to HSU Assistant..." rows="1" required></textarea>
+                            <button type="submit" id="btn-send" class="btn-send" title="Send Message">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                        <p class="legal-text">HSU Sen-Bot can make mistakes. Consider checking official school emails and guides.</p>
+                    </footer>
+                </main>
+            </div>
+        </div>
+
+        <!-- ================= RENAME SESSION DIALOG MODAL ================= -->
+        <div id="rename-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h2>Rename Conversation</h2>
+                <p>Provide a descriptive name for this chat session.</p>
+                <div class="input-group">
+                    <i class="fa-solid fa-pen"></i>
+                    <input type="text" id="rename-input" placeholder="Conversation Title" required>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="btn-rename-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="btn-rename-save">Save Title</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Script Logic -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
