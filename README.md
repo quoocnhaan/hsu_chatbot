@@ -2,7 +2,7 @@
 
 A comprehensive, full-stack AI Chatbot system built with **FastAPI**, **MySQL**, and **Vanilla JS**. This project leverages **Retrieval-Augmented Generation (RAG)** utilizing both Dense Vector Search and Sparse Lexical Search to provide highly accurate, hallucination-free counseling answers based on university data.
 
-![Chatbot Demo](https://via.placeholder.com/800x450.png?text=UI+Screenshot+Goes+Here)
+![Chatbot Demo](image.png)
 
 ## 🚀 Key Features
 
@@ -92,8 +92,4 @@ The application will be available at:
 * Frontend: `http://localhost:8000/`
 * API Docs (Swagger): `http://localhost:8000/docs`
 
-## 🤝 Contributing
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/hsu-rag-chatbot/issues).
 
-## 📝 License
-This project is [MIT](https://choosealicense.com/licenses/mit/) licensed.
