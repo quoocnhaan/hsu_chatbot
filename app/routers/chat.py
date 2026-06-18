@@ -7,7 +7,7 @@ from sqlalchemy import func
 from app.database import get_db
 from app.models import ChatSession, ChatMessage, User
 from app.schemas import MessageCreate, MessageResponse, ChatSessionResponse, ChatSessionUpdate
-from app.auth import get_current_user
+from app.auth import get_current_user, oauth2_scheme
 from app.chatbot import generate_chatbot_response
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
@@ -16,6 +16,7 @@ router = APIRouter(prefix="/api/chat", tags=["Chat"])
 async def send_message(
     message_in: MessageCreate,
     current_user: User = Depends(get_current_user),
+    token: str = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db)
 ):
 
@@ -59,7 +60,7 @@ async def send_message(
     )
     db.add(user_msg)
     
-    bot_response_text = await generate_chatbot_response(message_in.content, chat_history)
+    bot_response_text = await generate_chatbot_response(message_in.content, chat_history, token)
     
     bot_msg = ChatMessage(
         session_id=session_id,

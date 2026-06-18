@@ -10,6 +10,7 @@ load_dotenv()
 
 from app.database import engine, Base
 from app.routers import auth, chat
+from app.chatbot import close_mcp_client
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,6 +19,7 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     yield
     # Clean up and close connection pools on application shutdown
+    await close_mcp_client()
     await engine.dispose()
 
 app = FastAPI(
