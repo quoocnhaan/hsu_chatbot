@@ -79,6 +79,9 @@ class Professor(Base):
     department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"), nullable=True)
     professor_code = Column(String(20), unique=True, index=True, nullable=False)
     full_name = Column(String(100), nullable=False)
+    title = Column(String(100), nullable=True)
+    position = Column(String(100), nullable=True)
+    expertise = Column(String(255), nullable=True)
 
     user = relationship("User", back_populates="professor_profile")
     department = relationship("Department", back_populates="professors")

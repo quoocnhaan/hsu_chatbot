@@ -39,6 +39,15 @@ LangGraph is the loop that manages the AI's "thinking" process and triggers the 
 7. **Compile the Graph:**
    Combine the nodes and edges using `StateGraph(MessagesState)` and compile it into an executable workflow.
 
+### How the LLM Knows the Tool Schema (Function Calling)
+A common question is: *How does the LLM know exactly what JSON arguments to generate (like the JWT token) when it decides to call an MCP tool?*
+
+This is handled seamlessly through **JSON Schema** translation:
+1. **Server Definition:** In `mcp_server.py`, every tool is registered using `@mcp.list_tools()`. This function returns the name, description, and strict `inputSchema` (in JSON Schema format) for each tool.
+2. **Client Fetch:** When `chatbot.py` starts, the `MCPToolkit` requests this list of tools and their exact JSON schemas from the server.
+3. **LLM Binding:** When we run `llm.bind_tools(all_tools)`, LangChain takes the raw JSON Schemas and translates them into the native "Function Calling API" payload expected by the specific LLM (e.g., Qwen/Ollama).
+4. **Execution:** The LLM reads this hidden payload alongside the conversation. Because it is highly trained on function calling, when it realizes it needs to fetch grades, it looks at the provided schema for `get_my_grades`, sees it requires a `token` string, reads the token from the system prompt, and natively outputs the perfectly-formatted JSON structure (`{"token": "..."}`).
+
 ---
 
 ## The Execution Workflow (End-to-End)

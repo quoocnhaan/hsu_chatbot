@@ -3,6 +3,8 @@
 A comprehensive, full-stack AI Chatbot system built with **FastAPI**, **MySQL**, and **Vanilla JS**. This project leverages **Retrieval-Augmented Generation (RAG)** utilizing both Dense Vector Search and Sparse Lexical Search to provide highly accurate, hallucination-free counseling answers based on university data.
 
 ![Chatbot Demo](image.png)
+![Database MCP Demo](mcp.png)
+![Database Schemas Demo](schemas.png)
 
 ## 🚀 Key Features
 

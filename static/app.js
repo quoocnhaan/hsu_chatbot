@@ -1,10 +1,10 @@
 // HSU Chatbot Frontend SPA Logic (Decoupled Double-Token Auth Version)
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // Dynamically calculate the backend URL on port 8000 based on the current frontend domain
     // (Treats localhost and 127.0.0.1 as separate origins, avoiding CORS mismatches)
-    const BACKEND_URL = window.location.hostname === "localhost" 
-        ? "http://localhost:8000" 
+    const BACKEND_URL = window.location.hostname === "localhost"
+        ? "http://localhost:8000"
         : "http://127.0.0.1:8000";
 
     const API_AUTH = `${BACKEND_URL}/api/auth`;
@@ -21,19 +21,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const authView = document.getElementById("auth-view");
     const dashboardView = document.getElementById("dashboard-view");
     const authAlert = document.getElementById("auth-alert");
-    
+
     // Forms
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
     const chatInputForm = document.getElementById("chat-input-form");
-    
+
     // Toggles
     const toRegister = document.getElementById("to-register");
     const toLogin = document.getElementById("to-login");
     const mobileSidebarOpen = document.getElementById("mobile-sidebar-open");
     const mobileSidebarClose = document.getElementById("mobile-sidebar-close");
     const sidebar = document.querySelector(".sidebar");
-    
+
     // Inputs & Buttons
     const chatInput = document.getElementById("chat-input");
     const btnSend = document.getElementById("btn-send");
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatMessagesWrapper = document.getElementById("chat-messages-wrapper");
     const welcomeState = document.getElementById("welcome-state");
     const typingIndicator = document.getElementById("typing-indicator");
-    
+
     // Rename Modal Elements
     const renameModal = document.getElementById("rename-modal");
     const renameInput = document.getElementById("rename-input");
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function init() {
         // Automatically adjust textarea height as the user types
         chatInput.addEventListener("input", autoGrowTextarea);
-        
+
         // Press Enter to send, Shift+Enter to create a new line
         chatInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 submitUserMessage();
             }
         });
-        
+
         // Suggestion Card click handler
         document.querySelectorAll(".suggestion-card").forEach(card => {
             card.addEventListener("click", () => {
@@ -167,26 +167,26 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             // Call the refresh endpoint. Since HttpOnly cookies are managed by
             // the browser, we must add credentials: "include" to send cross-origin cookies.
-            const response = await fetch(`${API_AUTH}/refresh`, { 
+            const response = await fetch(`${API_AUTH}/refresh`, {
                 method: "POST",
                 credentials: "include"
             });
-            
+
             if (!response.ok) {
                 throw new Error("No active session cookie found.");
             }
-            
+
             const res = await response.json();
             accessToken = res.access_token; // Store Access Token in RAM (private variable)
-            
+
             // Retrieve and verify user profile
             const user = await apiCall(`${API_AUTH}/me`);
             username = user.username;
-            
+
             // Schedule next silent token refresh in 14 minutes (before the 15-minute token expires)
             if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
             refreshTimeoutId = setTimeout(refreshSession, 14 * 60 * 1000);
-            
+
             console.log("Access Token refreshed successfully in memory.");
             return true;
         } catch (e) {
@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function apiCall(endpoint, method = "GET", body = null, isFormData = false) {
         const headers = {};
-        
+
         if (accessToken) {
             headers["Authorization"] = `Bearer ${accessToken}`;
         }
@@ -221,12 +221,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             let response = await fetch(endpoint, options);
-            
+
             // API CALL INTERCEPTOR: If 401 occurs, try to rotate token once and retry
             if (response.status === 401 && endpoint !== `${API_AUTH}/login` && endpoint !== `${API_AUTH}/refresh`) {
                 console.log("Access Token expired (401). Attempting automatic refresh rotation...");
                 const refreshed = await refreshSession();
-                
+
                 if (refreshed) {
                     console.log("Token rotation succeeded. Retrying original request...");
                     // Update Authorization header with the new token
@@ -257,10 +257,10 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleLogin(e) {
         e.preventDefault();
         hideAlert();
-        
+
         const usernameVal = document.getElementById("login-username").value.trim();
         const passwordVal = document.getElementById("login-password").value;
-        
+
         const formData = new URLSearchParams();
         formData.append("username", usernameVal);
         formData.append("password", passwordVal);
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await apiCall(`${API_AUTH}/login`, "POST", formData, true);
             accessToken = res.access_token; // Store Access Token in RAM (private variable)
-            
+
             // Get user details
             const user = await apiCall(`${API_AUTH}/me`);
             username = user.username;
@@ -276,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Schedule the auto-refresh cycle
             if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
             refreshTimeoutId = setTimeout(refreshSession, 14 * 60 * 1000);
-            
+
             showDashboard();
         } catch (error) {
             showAlert(error.message || "Invalid credentials");
@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleRegister(e) {
         e.preventDefault();
         hideAlert();
-        
+
         const usernameVal = document.getElementById("reg-username").value.trim();
         const emailVal = document.getElementById("reg-email").value.trim();
         const passwordVal = document.getElementById("reg-password").value;
@@ -295,7 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
             await apiCall(`${API_AUTH}/register`, "POST", {
                 username: usernameVal,
                 email: emailVal,
-                password: passwordVal
+                password: passwordVal,
+                role: 'student'
             });
             showAlert("Registration successful! Please log in.", "success");
             setTimeout(() => {
@@ -328,14 +329,14 @@ document.addEventListener("DOMContentLoaded", () => {
             clearTimeout(refreshTimeoutId);
             refreshTimeoutId = null;
         }
-        
+
         // Reset DOM UI state to prevent visual leaks between users
         chatMessagesWrapper.innerHTML = "";
         sessionsList.innerHTML = "";
         chatTitleText.textContent = "Select or start a conversation";
         chatHeaderActions.classList.add("hidden");
         welcomeState.classList.remove("hidden");
-        
+
         showView("auth");
         // Reset forms
         loginForm.reset();
@@ -356,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             sessions = await apiCall(`${API_CHAT}/sessions`);
             renderSessions();
-            
+
             if (selectLatest && sessions.length > 0) {
                 loadSession(sessions[0].id);
             } else if (sessions.length === 0) {
@@ -413,9 +414,9 @@ document.addEventListener("DOMContentLoaded", () => {
         activeSessionId = null;
         chatTitleText.textContent = "New Conversation";
         chatHeaderActions.classList.add("hidden");
-        
+
         document.querySelectorAll(".sessions-list li").forEach(li => li.classList.remove("active"));
-        
+
         if (clearMessages) {
             chatMessagesWrapper.innerHTML = "";
             welcomeState.classList.remove("hidden");
@@ -425,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadSession(sessionId) {
         activeSessionId = sessionId;
-        
+
         document.querySelectorAll(".sessions-list li").forEach(li => {
             if (li.getAttribute("data-id") === sessionId) {
                 li.classList.add("active");
@@ -442,7 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         welcomeState.classList.add("hidden");
         chatMessagesWrapper.innerHTML = "";
-        
+
         try {
             const history = await apiCall(`${API_CHAT}/history?session_id=${sessionId}`);
             history.forEach(msg => {
@@ -507,11 +508,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function appendMessage(role, content) {
         const messageDiv = document.createElement("div");
         messageDiv.className = `message ${role}`;
-        
-        const avatarHtml = role === "user" 
+
+        const avatarHtml = role === "user"
             ? `<div class="message-avatar" title="You"><i class="fa-solid fa-user"></i></div>`
             : `<div class="message-avatar" title="HSU Assistant"><i class="fa-solid fa-robot"></i></div>`;
-            
+
         messageDiv.innerHTML = `
             ${avatarHtml}
             <div class="message-content">

@@ -236,12 +236,15 @@ async def generate_chatbot_response(
     # Inject System Prompt with instructions and Token
     system_prompt = (
         "Bạn là trợ lý ảo chuyên nghiệp và lịch sự của trường đại học. "
-        "Bạn có các công cụ để tra cứu thông tin chung bằng cách gọi 'search_university_handbook'. "
-        "Bạn có các công cụ 'get_my_grades' và 'get_my_current_classes' để xem điểm và lịch học của sinh viên. "
+        "Bạn có công cụ 'search_university_handbook' để tra cứu thông tin chung sổ tay sinh viên. "
+        "Bạn có các công cụ 'get_my_grades', 'get_my_current_classes', 'get_my_gpa' để xem điểm, lịch học và GPA của sinh viên. "
+        "Bạn có công cụ 'get_professor_info' để tra cứu thông tin giảng viên và 'search_classes_by_subject' để tìm lớp học. "
+        "Bạn cũng có thể dùng 'web_search' để tìm kiếm thông tin trên internet. "
         "TUYỆT ĐỐI không bịa đặt thông tin. Nếu không tìm thấy, hãy nói 'Tôi không tìm thấy thông tin này.' "
         "TRẢ LỜI NGẮN GỌN VÀ MẠCH LẠC BẰNG TIẾNG VIỆT.\n\n"
         f"IMPORTANT: The current user's JWT token is: '{token}'. "
-        "When you call 'get_my_grades' or 'get_my_current_classes', you MUST pass this token exactly as provided in the 'token' argument."
+        "When you call any MCP tools like 'get_my_grades', 'get_my_current_classes', 'get_my_gpa', "
+        "'get_professor_info', 'search_classes_by_subject', or 'web_search', you MUST pass this token exactly as provided in the 'token' argument."
     )
     messages.append(SystemMessage(content=system_prompt))
 
