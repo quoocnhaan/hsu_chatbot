@@ -14,4 +14,7 @@ ENV/
 # Database files
 *.db
 *.sqlite
+*.sqlite3
 test.db
+data/
+chroma_db/
