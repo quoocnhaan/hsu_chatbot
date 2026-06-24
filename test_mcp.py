@@ -5,9 +5,8 @@ from langchain_mcp.toolkit import MCPToolkit
 import os
 
 async def main():
-    import sys
     mcp_script = os.path.abspath("mcp_stdio.py")
-    server_params = StdioServerParameters(command=sys.executable, args=[mcp_script])
+    server_params = StdioServerParameters(command="python", args=[mcp_script])
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()

@@ -143,9 +143,8 @@ async def init_mcp_client():
     if mcp_tools:
         return
 
-    import sys
     mcp_script = str(BASE_DIR / "mcp_stdio.py")
-    server_params = StdioServerParameters(command=sys.executable, args=[mcp_script], env=None)
+    server_params = StdioServerParameters(command="python", args=[mcp_script], env=None)
 
     read_stream, write_stream = await exit_stack.enter_async_context(
         stdio_client(server_params)
